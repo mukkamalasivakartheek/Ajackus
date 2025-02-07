@@ -12,15 +12,11 @@ def chat_assistant(request):
 
     if not query:
         return JsonResponse({"error": "No query provided"}, status=400)
-
-    # Handle "employees in the [department] department"
     match = re.search(r"employees in the (.+?) department", query)
     if match:
         department_name = match.group(1).capitalize()
         employees = Employee.objects.filter(department__name=department_name)
         return JsonResponse({"employees": [e.name for e in employees]})
-
-    # Handle "manager of the [department] department"
     match = re.search(r"manager of the (.+?) department", query)
     if match:
         department_name = match.group(1).capitalize()
@@ -28,15 +24,11 @@ def chat_assistant(request):
         if department:
             return JsonResponse({"manager": department.manager})
         return JsonResponse({"error": "Department not found"}, status=404)
-
-    # Handle "hired after [date]"
     match = re.search(r"hired after (\d{4}-\d{2}-\d{2})", query)
     if match:
         hire_date = match.group(1)
         employees = Employee.objects.filter(hire_date__gt=hire_date)
         return JsonResponse({"employees": [e.name for e in employees]})
-
-    # FIXED: Total salary calculation
     match = re.search(r"total salary expense for the (.+?) department", query)
     if match:
         department_name = match.group(1).capitalize()
